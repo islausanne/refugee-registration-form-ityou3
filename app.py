@@ -18,6 +18,7 @@ def submit_form():
     first_name = request.form['first_name']
     last_name = request.form['last_name']
     date_of_birth = request.form['date_of_birth']
+    sex=request.form['sex']
 
 
     email = request.form['email']
@@ -30,16 +31,16 @@ def submit_form():
     session['email'] = email
     session['message'] = message
     session['date_of_birth'] = date_of_birth
-
-
-
-    if not first_name or not email or not message or not last_name or not date_of_birth:
-        flash('All fields are required!')
-        return redirect(url_for('index'))
+    session['sex']=sex
 
     if not re.match(EMAIL_REGEX, email):
         flash('Please enter a valid email address.')
         return redirect(url_for('index'))
+    if not first_name or not email or not message or not last_name or not date_of_birth or not sex :
+        flash('All fields are required!')
+        return redirect(url_for('index'))
+
+
 
     if len(message) < 10:
         flash('Message must be at least 10 characters long.')
@@ -56,6 +57,8 @@ def submit_form():
         "email": email,
         "message": message,
         "date_of_birth": date_of_birth,
+        "sex":sex
+
 
     }
     data.append(submission)
@@ -65,7 +68,7 @@ def submit_form():
 
     with open('registrations.json', 'w') as file:
         json.dump(data, file, indent=4)
-    for key in ['first_name', 'last_name', 'email', 'message', 'date_of_birth']:
+    for key in ['first_name', 'last_name', 'email', 'message', 'date_of_birth','sex','date_of_birth']:
         session.pop(key, None)
 
     flash(f'Thank you, {first_name} {last_name}. Your message has been submitted successfully!')
