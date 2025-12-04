@@ -2,16 +2,18 @@ from flask import Flask, session,  render_template, request, redirect, url_for, 
 import re
 import json
 import os
+import datetime
+
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 spaces=" "
-numbers=int
-letters=str
+numbers="0123456789"
+
 EMAIL_REGEX = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
 admin_password="123"
 admin_username="admin"
-
+PHONE_REGEX = r'^\+?[\d\s\-\(\)]{10,}$'
 if os.path.exists('registrations.json'):
     with open('registrations.json', 'r') as file:
         data = json.load(file)
@@ -67,13 +69,33 @@ def submit_form():
 
     }
 
+    curent_date = datetime.datetime.now().date() #cauculating the curent date
+    old = curent_date - datetime.timedelta(days=365*100) # cauculating if the date is larger than 100
+
+    #turning the date into a string containing year month and day
+    dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+    #checking if the date inputed is in the future
+    if dob > curent_date:
+        flash('Date of birth is greater than current date')
+        return redirect(url_for('index'))
+    #cheking if their birth is larger than what is plausible.
+    if dob>old:
+        flash('Date of birth is greater than current date')
+        return redirect(url_for('index'))
+    #checking if the name is writen in plain text without eny spaces or special charecters.
+    if  not first_name.isalpha() or not  last_name.isalpha() :
+        flash('Please enter your first name and last name corectly.')
+        return redirect(url_for('form'))
+    if len(first_name) < 2 or len(last_name) <2:
+        flash('Please enter your first name and last name corectly.')
+        return redirect(url_for('form'))
     if not re.match(EMAIL_REGEX, email):
         flash('Please enter a valid email address.')
         return redirect(url_for('form'))
-    if first_name and last_name in spaces or numbers :
-        flash('Please enter your first and last name.')
-    if phone_number in spaces or letters :
-        flash('Please enter your phone number.')
+    if not re.match(PHONE_REGEX, phone_number):
+        flash('Please enter a valid phone number.')
+        return redirect(url_for('form'))
+
 
     data.append(submission)
     with open('registrations.json', 'w') as file:
