@@ -1,12 +1,17 @@
 {% extends "base.html" %}
+#this utilises the parent template from base.html
 {% block title %}View Submissions{% endblock %}
+#this sets the title inside base.html
 {% block content %}
+# This starts the "content" block, where the page’s main content goes
 <h1>All Submissions</h1>
 
 {% if submissions %}
+# Check if the variable "submissions" is not empty
 <table>
     <thead>
         <tr>
+            #table header titles
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email</th>
@@ -22,6 +27,7 @@
     <tbody>
         {% for sub in submissions %}
         <tr>
+            #Display each field from the submission
             <td>{{ sub['first_name'] }}</td>
             <td>{{ sub['last_name'] }}</td>
             <td>{{ sub['email'] }}</td>
